@@ -1,4 +1,9 @@
-In WSL / Ubuntu, install
+Table of Contents
+- [Ubuntu](#ubuntu)
+- [Windows](#windows)
+
+## Ubuntu
+In Ubuntu or WSL, Install bind9-dnsutils
 ```bash
 sudo apt install bind9-dnsutils
 ```
@@ -68,4 +73,93 @@ for result in "${sorted[@]}"; do
     ((rank++))
 done
 
+```
+
+## Windows 
+Paste in Powershell
+```bash
+# DNS servers and their names
+$servers = @("8.8.8.8", "1.1.1.1", "208.67.222.222", "9.9.9.9", "45.90.28.0", "94.140.14.14", "185.222.222.222", "40.120.32.170")
+$names = @("Google", "Cloudflare", "OpenDNS", "Quad9", "NextDNS", "AdGuard", "DNS SB", "KahfGuard")
+
+# Array to store results
+$results = @()
+
+Write-Host "Testing DNS servers..." -ForegroundColor Yellow
+Write-Host
+
+for ($i = 0; $i -lt $servers.Length; $i++) {
+    Write-Host "Testing $($names[$i])... " -NoNewline -ForegroundColor Cyan
+    
+    try {
+        # Measure response time
+        $stopwatch = [System.Diagnostics.Stopwatch]::StartNew()
+        
+        # Perform DNS query using Resolve-DnsName
+        $result = Resolve-DnsName -Name "google.com" -Server $servers[$i] -Type A -ErrorAction Stop -DnsOnly
+        
+        $stopwatch.Stop()
+        $responseTime = $stopwatch.ElapsedMilliseconds
+        
+        # Check if we got a valid result
+        if ($result -and $result.IPAddress) {
+            $status = "✓ OK"
+            Write-Host "${responseTime}ms" -ForegroundColor Green
+            
+            # Store result
+            $results += [PSCustomObject]@{
+                ResponseTime = $responseTime
+                Name = $names[$i]
+                Server = $servers[$i]
+                Status = $status
+            }
+        } else {
+            throw "No valid response"
+        }
+    }
+    catch {
+        $status = "✗ FAIL"
+        Write-Host "FAILED" -ForegroundColor Red
+        
+        # Store failed result with high number for sorting
+        $results += [PSCustomObject]@{
+            ResponseTime = 9999
+            Name = $names[$i]
+            Server = $servers[$i]
+            Status = $status
+        }
+    }
+}
+
+Write-Host
+Write-Host "Results sorted by speed (fastest to slowest):" -ForegroundColor Yellow
+Write-Host
+
+# Sort results by response time
+$sortedResults = $results | Sort-Object ResponseTime
+
+# Print table header
+Write-Host ("{0,-4} {1,-12} {2,-15} {3,-10} {4,-10}" -f "Rank", "DNS Provider", "Server", "Status", "Time (ms)") -ForegroundColor White
+Write-Host ("{0,-4} {1,-12} {2,-15} {3,-10} {4,-10}" -f "----", "------------", "---------------", "----------", "----------") -ForegroundColor Gray
+
+# Print sorted results with ranking
+$rank = 1
+foreach ($result in $sortedResults) {
+    # Format time display
+    if ($result.ResponseTime -eq 9999) {
+        $timeDisplay = "N/A"
+        $color = "Red"
+    } else {
+        $timeDisplay = $result.ResponseTime.ToString()
+        $color = "Green"
+    }
+    
+    $statusColor = if ($result.Status -eq "✓ OK") { "Green" } else { "Red" }
+    
+    Write-Host ("{0,-4} {1,-12} {2,-15} " -f $rank, $result.Name, $result.Server) -NoNewline
+    Write-Host ("{0,-10} " -f $result.Status) -NoNewline -ForegroundColor $statusColor
+    Write-Host ("{0,-10}" -f $timeDisplay) -ForegroundColor $color
+    
+    $rank++
+}
 ```
