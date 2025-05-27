@@ -183,4 +183,5 @@ foreach ($result in $sortedResults) {
     
     $rank++
 }
+
 ```
