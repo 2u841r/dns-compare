@@ -187,3 +187,6 @@ foreach ($result in $sortedResults) {
 }
 
 ```
+
+
+![Repo Views](https://repostats.deno.dev/2u841r/dns-compare)
