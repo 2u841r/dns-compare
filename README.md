@@ -4,8 +4,11 @@ Table of Contents
 
 
 ## Windows 
-Download [exe](./dns/DNSSpeedTest.exe) file and run, or 
-Paste in Powershell
+[Download](https://github.com/2u841r/dns-compare/raw/refs/heads/main/dns/DNSSpeedTest.exe) file 
+ignore anti-virus warning- its safe. and click on "Run Anyway"
+
+or 
+Paste this code in Powershell
 ```bash
 # DNS Speed Test Script
 # Define DNS servers and their names
