@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser DNS Benchmark Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn.stop {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .progress-section {
+            padding: 20px 30px;
+            background: #ecf0f1;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #bdc3c7;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .results-section {
+            padding: 30px;
+            display: none;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .results-header h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .timestamp {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .results-table th {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .results-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .results-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .results-table tr:hover {
+            background-color: #e3f2fd;
+            transition: background-color 0.3s;
+        }
+
+        .rank {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .rank-1 { color: #f39c12; }
+        .rank-2 { color: #95a5a6; }
+        .rank-3 { color: #e67e22; }
+
+        .dns-name {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .response-time {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .fast { color: #27ae60; }
+        .medium { color: #f39c12; }
+        .slow { color: #e74c3c; }
+        .failed { color: #c0392b; }
+
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status.excellent { background-color: #d5f4e6; color: #27ae60; }
+        .status.good { background-color: #fef9e7; color: #f39c12; }
+        .status.slow { background-color: #fadbd8; color: #e74c3c; }
+        .status.failed { background-color: #fadbd8; color: #c0392b; }
+
+        .summary {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+            border-radius: 10px;
+        }
+
+        .summary h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .summary-item {
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .controls, .results-section {
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 16px;
+                margin: 5px;
+            }
+            
+            .results-table {
+                font-size: 14px;
+            }
+            
+            .results-table th,
+            .results-table td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Browser DNS Benchmark</h1>
+            <p>Test DNS performance directly in your browser - no technical knowledge required!</p>
+        </div>
+
+        <div class="controls">
+            <div class="info">
+                <strong>ℹ️ How it works:</strong> This tool measures DNS resolution time by making requests to different DNS servers through your browser. Results may vary based on your location and network conditions.
+            </div>
+            
+            <button class="btn" id="startBtn" onclick="startBenchmark()">
+                🔍 Start DNS Benchmark
+            </button>
+            <button class="btn stop" id="stopBtn" onclick="stopBenchmark()" style="display: none;">
+                ⏹️ Stop Test
+            </button>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Initializing...</div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results-header">
+                <h2>📊 DNS Performance Results</h2>
+                <div class="timestamp" id="timestamp"></div>
+            </div>
+            
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>DNS Provider</th>
+                        <th>IP Address</th>
+                        <th>Avg Response Time</th>
+                        <th>Status</th>
+                        <th>Reliability</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                </tbody>
+            </table>
+
+            <div class="summary" id="summary">
+                <h3>📈 Summary & Recommendations</h3>
+                <div id="summaryContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DNS_SERVERS = [
+            { name: "Google", ip: "8.8.8.8", url: "https://dns.google/resolve" },
+            { name: "Cloudflare", ip: "1.1.1.1", url: "https://cloudflare-dns.com/dns-query" },
+            { name: "OpenDNS", ip: "208.67.222.222", url: "https://doh.opendns.com/dns-query" },
+            { name: "Quad9", ip: "9.9.9.9", url: "https://dns.quad9.net/dns-query" },
+            { name: "NextDNS", ip: "45.90.28.0", url: "https://dns.nextdns.io" },
+            { name: "AdGuard", ip: "94.140.14.14", url: "https://dns.adguard.com/dns-query" },
+            { name: "Kahf", ip: "40.120.32.170", url: "https://kahf.dns.sb/dns-query" }
+        ];
+
+        const TEST_DOMAINS = ["google.com", "facebook.com", "youtube.com"];
+        const TESTS_PER_SERVER = 3;
+        
+        let isRunning = false;
+        let currentTest = 0;
+        let totalTests = DNS_SERVERS.length * TESTS_PER_SERVER;
+        let results = [];
+
+        async function testDNSServer(server, domain) {
+            const startTime = performance.now();
+            
+            try {
+                // Use DNS over HTTPS (DoH) for browser compatibility
+                const response = await fetch(`${server.url}?name=${domain}&type=A`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/dns-json'
+                    },
+                    signal: AbortSignal.timeout(5000) // 5 second timeout
+                });
+                
+                const endTime = performance.now();
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return {
+                        success: true,
+                        responseTime: endTime - startTime,
+                        data: data
+                    };
+                } else {
+                    return {
+                        success: false,
+                        responseTime: null,
+                        error: `HTTP ${response.status}`
+                    };
+                }
+            } catch (error) {
+                const endTime = performance.now();
+                return {
+                    success: false,
+                    responseTime: endTime - startTime,
+                    error: error.message
+                };
+            }
+        }
+
+        async function benchmarkServer(server) {
+            const serverResults = {
+                name: server.name,
+                ip: server.ip,
+                responseTimes: [],
+                successCount: 0,
+                totalTests: TESTS_PER_SERVER,
+                errors: []
+            };
+
+            for (let i = 0; i < TESTS_PER_SERVER; i++) {
+                if (!isRunning) break;
+                
+                updateProgress(`Testing ${server.name} (${i + 1}/${TESTS_PER_SERVER})...`);
+                
+                const domain = TEST_DOMAINS[i % TEST_DOMAINS.length];
+                const result = await testDNSServer(server, domain);
+                
+                if (result.success) {
+                    serverResults.responseTimes.push(result.responseTime);
+                    serverResults.successCount++;
+                } else {
+                    serverResults.errors.push(result.error);
+                }
+                
+                currentTest++;
+                updateProgressBar();
+                
+                // Small delay between tests
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            return serverResults;
+        }
+
+        async function startBenchmark() {
+            if (isRunning) return;
+            
+            isRunning = true;
+            currentTest = 0;
+            results = [];
+            
+            document.getElementById('startBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'inline-block';
+            document.getElementById('progressSection').style.display = 'block';
+            document.getElementById('resultsSection').style.display = 'none';
+            
+            updateProgress('Starting DNS benchmark...');
+            updateProgressBar();
+
+            try {
+                for (const server of DNS_SERVERS) {
+                    if (!isRunning) break;
+                    
+                    const serverResult = await benchmarkServer(server);
+                    results.push(serverResult);
+                }
+                
+                if (isRunning) {
+                    displayResults();
+                }
+            } catch (error) {
+                console.error('Benchmark error:', error);
+                updateProgress('Error occurred during benchmark');
+            }
+            
+            stopBenchmark();
+        }
+
+        function stopBenchmark() {
+            isRunning = false;
+            document.getElementById('startBtn').style.display = 'inline-block';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('progressSection').style.display = 'none';
+        }
+
+        function updateProgress(text) {
+            document.getElementById('progressText').textContent = text;
+        }
+
+        function updateProgressBar() {
+            const percentage = (currentTest / totalTests) * 100;
+            document.getElementById('progressFill').style.width = percentage + '%';
+        }
+
+        function displayResults() {
+            // Calculate averages and sort
+            const processedResults = results.map(result => {
+                const avgTime = result.responseTimes.length > 0 
+                    ? result.responseTimes.reduce((a, b) => a + b, 0) / result.responseTimes.length 
+                    : Infinity;
+                
+                const reliability = (result.successCount / result.totalTests) * 100;
+                
+                return {
+                    ...result,
+                    avgTime,
+                    reliability
+                };
+            }).sort((a, b) => {
+                if (a.avgTime === Infinity && b.avgTime === Infinity) return 0;
+                if (a.avgTime === Infinity) return 1;
+                if (b.avgTime === Infinity) return -1;
+                return a.avgTime - b.avgTime;
+            });
+
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+
+            processedResults.forEach((result, index) => {
+                const row = document.createElement('tr');
+                
+                // Determine status
+                let statusClass = '';
+                let statusText = '';
+                
+                if (result.avgTime === Infinity) {
+                    statusClass = 'failed';
+                    statusText = 'Failed';
+                } else if (result.avgTime < 100) {
+                    statusClass = 'excellent';
+                    statusText = 'Excellent';
+                } else if (result.avgTime < 300) {
+                    statusClass = 'good';
+                    statusText = 'Good';
+                } else {
+                    statusClass = 'slow';
+                    statusText = 'Slow';
+                }
+
+                // Rank styling
+                let rankClass = '';
+                const rankEmoji = index === 0 && result.avgTime !== Infinity ? '🥇' : 
+                                 index === 1 && result.avgTime !== Infinity ? '🥈' : 
+                                 index === 2 && result.avgTime !== Infinity ? '🥉' : '';
+
+                if (index < 3 && result.avgTime !== Infinity) {
+                    rankClass = `rank-${index + 1}`;
+                }
+
+                row.innerHTML = `
+                    <td class="rank ${rankClass}">${rankEmoji} ${index + 1}</td>
+                    <td class="dns-name">${result.name}</td>
+                    <td class="response-time">${result.ip}</td>
+                    <td class="response-time ${statusClass.replace('excellent', 'fast').replace('good', 'medium')}">
+                        ${result.avgTime === Infinity ? 'FAILED' : Math.round(result.avgTime) + 'ms'}
+                    </td>
+                    <td><span class="status ${statusClass}">${statusText}</span></td>
+                    <td class="response-time">${Math.round(result.reliability)}%</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+
+            generateSummary(processedResults);
+            
+            document.getElementById('resultsSection').style.display = 'block';
+            document.getElementById('timestamp').textContent = `Completed on ${new Date().toLocaleString()}`;
+        }
+
+        function generateSummary(results) {
+            const successful = results.filter(r => r.avgTime !== Infinity);
+            const failed = results.filter(r => r.avgTime === Infinity);
+            
+            let summaryHTML = '';
+            
+            if (successful.length > 0) {
+                const fastest = successful[0];
+                const slowest = successful[successful.length - 1];
+                const avgTime = successful.reduce((sum, r) => sum + r.avgTime, 0) / successful.length;
+                
+                summaryHTML += `
+                    <div class="summary-item">🏆 <strong>Fastest DNS:</strong> ${fastest.name} (${Math.round(fastest.avgTime)}ms average)</div>
+                    <div class="summary-item">🐌 <strong>Slowest DNS:</strong> ${slowest.name} (${Math.round(slowest.avgTime)}ms average)</div>
+                    <div class="summary-item">📊 <strong>Overall Average:</strong> ${Math.round(avgTime)}ms</div>
+                    <div class="summary-item">✅ <strong>Successful Tests:</strong> ${successful.length}/${results.length} DNS servers</div>
+                    <div class="summary-item">💡 <strong>Recommendation:</strong> Use ${fastest.name} as your primary DNS for best performance</div>
+                `;
+            }
+            
+            if (failed.length > 0) {
+                summaryHTML += `<div class="summary-item">❌ <strong>Failed Tests:</strong> ${failed.map(f => f.name).join(', ')}</div>`;
+            }
+            
+            document.getElementById('summaryContent').innerHTML = summaryHTML;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DNS Benchmark Tool Ready');
+        });
+    </script>
+</body>
+</html>
