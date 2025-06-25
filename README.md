@@ -2,22 +2,46 @@ Table of Contents
 - [Windows](#windows)
 - [Ubuntu](#ubuntu)
 
+
 ## Windows 
-Download [exe](./dns/DNSSpeedTest.exe) to easily test DNS servers.
-
-or Paste in Powershell
-
+Download [exe](./dns/DNSSpeedTest.exe) file and run, or 
+Paste in Powershell
 ```bash
-# DNS servers and their names
-$servers = @("8.8.8.8", "1.1.1.1", "208.67.222.222", "9.9.9.9", "45.90.28.0", "94.140.14.14", "185.222.222.222", "40.120.32.170")
-$names = @("Google", "Cloudflare", "OpenDNS", "Quad9", "NextDNS", "AdGuard", "DNS SB", "KahfGuard")
+# DNS Speed Test Script
+# Define DNS servers and their names
+$servers = @(
+    "8.8.8.8",           # Google
+    "1.1.1.1",           # Cloudflare
+    "208.67.222.222",    # OpenDNS
+    "9.9.9.9",           # Quad9
+    "45.90.28.0",        # NextDNS
+    "94.140.14.14",      # AdGuard
+    "185.222.222.222",   # DNS.SB
+    "194.242.2.2",       # Mullvad
+    "77.88.8.8",         # Yandex
+    "40.120.32.170"      # KahfGuard
+)
 
-# Array to store results
+$names = @(
+    "Google",
+    "Cloudflare", 
+    "OpenDNS",
+    "Quad9",
+    "NextDNS",
+    "AdGuard",
+    "DNS SB",
+    "Mullvad",
+    "Yandex",
+    "KahfGuard"
+)
+
+# Initialize results array
 $results = @()
 
 Write-Host "Testing DNS servers..." -ForegroundColor Yellow
 Write-Host
 
+# Test each DNS server
 for ($i = 0; $i -lt $servers.Length; $i++) {
     Write-Host "Testing $($names[$i])... " -NoNewline -ForegroundColor Cyan
     
@@ -80,7 +104,7 @@ foreach ($result in $sortedResults) {
         $timeDisplay = "N/A"
         $color = "Red"
     } else {
-        $timeDisplay = $result.ResponseTime.ToString()
+        $timeDisplay = $result.ResponseTime.ToString() + "ms"
         $color = "Green"
     }
     
@@ -92,8 +116,11 @@ foreach ($result in $sortedResults) {
     
     $rank++
 }
+
 ```
 
+
+![Repo Views](https://repostats.deno.dev/2u841r/dns-compare)
 
 
 ## Ubuntu
@@ -106,8 +133,8 @@ then run
 ```bash
 #!/bin/bash
 
-servers=("8.8.8.8" "1.1.1.1" "208.67.222.222" "9.9.9.9" "45.90.28.0" "94.140.14.14" "185.222.222.222" "40.120.32.170")
-names=("Google" "Cloudflare" "OpenDNS" "Quad9" "NextDNS" "AdGuard" "DNS SB" "KahfGuard")
+servers=("8.8.8.8" "1.1.1.1" "208.67.222.222" "9.9.9.9" "45.90.28.0" "94.140.14.14" "185.222.222.222" "194.242.2.2" "77.88.8.8" "40.120.32.170")
+names=("Google" "Cloudflare" "OpenDNS" "Quad9" "NextDNS" "AdGuard" "DNS SB" "Mullvad" "Yandex" "KahfGuard")
 
 # Arrays to store results
 results=()
