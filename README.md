@@ -6,7 +6,7 @@ Table of Contents
 ## Windows 
 [Download](https://github.com/2u841r/dns-compare/raw/refs/heads/main/dns/DNSSpeedTest.exe) file 
 ignore anti-virus warning- its safe. and click on "Run Anyway"
-![how to use](./how-to-use.gif)
+![how to use](./how-to.gif)
 
 or 
 Paste this code in Powershell
