@@ -23,7 +23,9 @@ $servers = @(
     "185.222.222.222",   # DNS.SB
     "194.242.2.2",       # Mullvad
     "77.88.8.8",         # Yandex
-    "40.120.32.170"      # KahfGuard
+    "40.120.32.170",     # KahfGuard
+    "193.110.81.0",      # Dns0.eu
+    "119.29.29.29"       # Tencent
 )
 
 $names = @(
@@ -36,7 +38,9 @@ $names = @(
     "DNS SB",
     "Mullvad",
     "Yandex",
-    "KahfGuard"
+    "KahfGuard",
+    "Dns0.eu",
+    "Tencent"
 )
 
 # Initialize results array
@@ -137,8 +141,8 @@ then run
 ```bash
 #!/bin/bash
 
-servers=("8.8.8.8" "1.1.1.1" "208.67.222.222" "9.9.9.9" "45.90.28.0" "94.140.14.14" "185.222.222.222" "194.242.2.2" "77.88.8.8" "40.120.32.170")
-names=("Google" "Cloudflare" "OpenDNS" "Quad9" "NextDNS" "AdGuard" "DNS SB" "Mullvad" "Yandex" "KahfGuard")
+servers=("8.8.8.8" "1.1.1.1" "208.67.222.222" "9.9.9.9" "45.90.28.0" "94.140.14.14" "185.222.222.222" "194.242.2.2" "77.88.8.8" "40.120.32.170" "193.110.81.0" "119.29.29.29")
+names=("Google" "Cloudflare" "OpenDNS" "Quad9" "NextDNS" "AdGuard" "DNS SB" "Mullvad" "Yandex" "KahfGuard" "Dns0.eu" "Tencent")
 
 # Arrays to store results
 results=()
