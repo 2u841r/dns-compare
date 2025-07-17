@@ -15,32 +15,56 @@ Paste this code in Powershell
 # Define DNS servers and their names
 $servers = @(
     "8.8.8.8",           # Google
+    "8.8.4.4",           # Google 2
     "1.1.1.1",           # Cloudflare
+    "1.0.0.1",           # Cloudflare 2
     "208.67.222.222",    # OpenDNS
+    "208.67.220.220",    # OpenDNS 2
     "9.9.9.9",           # Quad9
+    "149.112.112.112",   # Quad9 2 
     "45.90.28.0",        # NextDNS
+    "45.90.30.0",        # NextDNS 2
     "94.140.14.14",      # AdGuard
+    "94.140.15.15",      # AdGuard 2
     "185.222.222.222",   # DNS.SB
+    "45.11.45.11",       # DNS.SB 2
     "194.242.2.2",       # Mullvad
+    "194.242.2.4",       # Mullvad
     "77.88.8.8",         # Yandex
-    "40.120.32.170",     # KahfGuard
+    "77.88.8.1",         # Yandex 2
+    "40.120.32.158",     # KahfGuard
+    "40.120.32.159",     # KahfGuard 2
     "193.110.81.0",      # Dns0.eu
+    "185.253.5.0",       # Dns0.eu 2
     "119.29.29.29"       # Tencent
+    "119.28.28.28"       # Tencent 2
 )
 
 $names = @(
     "Google",
+    "Google 2",
     "Cloudflare", 
+    "Cloudflare 2", 
     "OpenDNS",
+    "OpenDNS 2",
     "Quad9",
+    "Quad9 2",
     "NextDNS",
+    "NextDNS 2",
     "AdGuard",
+    "AdGuard 2",
     "DNS SB",
+    "DNS SB 2",
     "Mullvad",
+    "Mullvad 2",
     "Yandex",
+    "Yandex 2",
     "KahfGuard",
+    "KahfGuard 2",
     "Dns0.eu",
+    "Dns0.eu 2",
     "Tencent"
+    "Tencent 2"
 )
 
 # Initialize results array
