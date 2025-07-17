@@ -165,8 +165,9 @@ then run
 ```bash
 #!/bin/bash
 
-servers=("8.8.8.8" "1.1.1.1" "208.67.222.222" "9.9.9.9" "45.90.28.0" "94.140.14.14" "185.222.222.222" "194.242.2.2" "77.88.8.8" "40.120.32.170" "193.110.81.0" "119.29.29.29")
-names=("Google" "Cloudflare" "OpenDNS" "Quad9" "NextDNS" "AdGuard" "DNS SB" "Mullvad" "Yandex" "KahfGuard" "Dns0.eu" "Tencent")
+servers=("8.8.8.8" "8.8.4.4" "1.1.1.1" "1.0.0.1" "208.67.222.222" "208.67.220.220" "9.9.9.9" "149.112.112.112" "45.90.28.0" "45.90.30.0" "94.140.14.14" "94.140.15.15" "185.222.222.222" "45.11.45.11" "194.242.2.2" "194.242.2.4" "77.88.8.8" "77.88.8.1" "40.120.32.158" "40.120.32.159" "193.110.81.0" "185.253.5.0" "119.29.29.29" "119.28.28.28")
+names=("Google" "Google 2" "Cloudflare" "Cloudflare 2" "OpenDNS" "OpenDNS 2" "Quad9" "Quad9 2" "NextDNS" "NextDNS 2" "AdGuard" "AdGuard 2" "DNS SB" "DNS SB 2" "Mullvad" "Mullvad 2" "Yandex" "Yandex 2" "KahfGuard" "KahfGuard 2" "Dns0.eu" "Dns0.eu 2" "Tencent" "Tencent 2")
+
 
 # Arrays to store results
 results=()
