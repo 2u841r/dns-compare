@@ -36,7 +36,7 @@ $servers = @(
     "40.120.32.159",     # KahfGuard 2
     "193.110.81.0",      # Dns0.eu
     "185.253.5.0",       # Dns0.eu 2
-    "119.29.29.29"       # Tencent
+    "119.29.29.29",       # Tencent
     "119.28.28.28"       # Tencent 2
 )
 
@@ -63,7 +63,7 @@ $names = @(
     "KahfGuard 2",
     "Dns0.eu",
     "Dns0.eu 2",
-    "Tencent"
+    "Tencent",
     "Tencent 2"
 )
 
