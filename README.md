@@ -203,67 +203,98 @@ then run
 ```bash
 #!/bin/bash
 
-servers=("8.8.8.8" "8.8.4.4" "1.1.1.1" "1.0.0.1" "208.67.222.222" "208.67.220.220" "9.9.9.9" "149.112.112.112" "45.90.28.0" "45.90.30.0" "94.140.14.14" "94.140.15.15" "185.222.222.222" "45.11.45.11" "194.242.2.2" "194.242.2.4" "77.88.8.8" "77.88.8.1" "40.120.32.158" "40.120.32.159" "193.110.81.0" "185.253.5.0" "119.29.29.29" "119.28.28.28")
-names=("Google" "Google 2" "Cloudflare" "Cloudflare 2" "OpenDNS" "OpenDNS 2" "Quad9" "Quad9 2" "NextDNS" "NextDNS 2" "AdGuard" "AdGuard 2" "DNS SB" "DNS SB 2" "Mullvad" "Mullvad 2" "Yandex" "Yandex 2" "KahfGuard" "KahfGuard 2" "Dns0.eu" "Dns0.eu 2" "Tencent" "Tencent 2")
+# Primary DNS servers
+primary_servers=("8.8.8.8" "1.1.1.1" "208.67.222.222" "9.9.9.9" "45.90.28.0" "94.140.14.14" "185.222.222.222" "194.242.2.2" "77.88.8.8" "40.120.32.158" "193.110.81.0" "119.29.29.29")
+primary_names=("Google" "Cloudflare" "OpenDNS" "Quad9" "NextDNS" "AdGuard" "DNS SB" "Mullvad" "Yandex" "KahfGuard" "Dns0.eu" "Tencent")
 
+# Secondary DNS servers
+secondary_servers=("8.8.4.4" "1.0.0.1" "208.67.220.220" "149.112.112.112" "45.90.30.0" "94.140.15.15" "45.11.45.11" "194.242.2.4" "77.88.8.1" "40.120.32.159" "185.253.5.0" "119.28.28.28")
+secondary_names=("Google 2" "Cloudflare 2" "OpenDNS 2" "Quad9 2" "NextDNS 2" "AdGuard 2" "DNS SB 2" "Mullvad 2" "Yandex 2" "KahfGuard 2" "Dns0.eu 2" "Tencent 2")
+
+# Function to test DNS servers
+test_dns_servers() {
+    local -n servers_ref=$1
+    local -n names_ref=$2
+    local category=$3
+    local -n results_ref=$4
+    
+    echo "Testing $category DNS servers..."
+    echo
+    
+    for i in "${!servers_ref[@]}"; do
+        echo -n "Testing ${names_ref[$i]}... "
+        
+        # Capture the time and result
+        start_time=$(date +%s%3N)
+        result=$(dig @${servers_ref[$i]} google.com +short +time=3 +tries=1 2>/dev/null)
+        end_time=$(date +%s%3N)
+        
+        # Calculate response time
+        response_time=$((end_time - start_time))
+        
+        # Check if query was successful
+        if [ -n "$result" ]; then
+            status="✓ OK"
+            echo "${response_time}ms"
+            # Store: "response_time|name|server|status"
+            results_ref+=("${response_time}|${names_ref[$i]}|${servers_ref[$i]}|${status}")
+        else
+            status="✗ FAIL"
+            echo "FAILED"
+            # Store failed results with high number for sorting
+            results_ref+=("9999|${names_ref[$i]}|${servers_ref[$i]}|${status}")
+        fi
+    done
+}
+
+# Function to display results table
+show_results_table() {
+    local -n results_ref=$1
+    local title=$2
+    
+    echo
+    echo "$title (sorted by speed - fastest to slowest):"
+    echo
+    
+    # Sort results by response time (first field)
+    IFS=$'\n' sorted=($(sort -t'|' -n <<<"${results_ref[*]}"))
+    
+    # Print table header
+    printf "%-4s %-12s %-15s %-10s %-10s\n" "Rank" "DNS Provider" "Server" "Status" "Time (ms)"
+    printf "%-4s %-12s %-15s %-10s %-10s\n" "----" "------------" "---------------" "----------" "----------"
+    
+    # Print sorted results with ranking
+    rank=1
+    for result in "${sorted[@]}"; do
+        IFS='|' read -r time name server status <<< "$result"
+        
+        # Format time display
+        if [ "$time" = "9999" ]; then
+            time_display="N/A"
+        else
+            time_display="${time}ms"
+        fi
+        
+        printf "%-4s %-12s %-15s %-10s %-10s\n" "$rank" "$name" "$server" "$status" "$time_display"
+        ((rank++))
+    done
+}
 
 # Arrays to store results
-results=()
+primary_results=()
+secondary_results=()
 
-echo "Testing DNS servers..."
-echo
+# Test primary DNS servers
+test_dns_servers primary_servers primary_names "Primary" primary_results
 
-for i in "${!servers[@]}"; do
-    echo -n "Testing ${names[$i]}... "
-    
-    # Capture the time and result
-    start_time=$(date +%s%3N)
-    result=$(dig @${servers[$i]} google.com +short +time=3 +tries=1 2>/dev/null)
-    end_time=$(date +%s%3N)
-    
-    # Calculate response time
-    response_time=$((end_time - start_time))
-    
-    # Check if query was successful
-    if [ -n "$result" ]; then
-        status="✓ OK"
-        echo "${response_time}ms"
-        # Store: "response_time|name|server|status"
-        results+=("${response_time}|${names[$i]}|${servers[$i]}|${status}")
-    else
-        status="✗ FAIL"
-        echo "FAILED"
-        # Store failed results with high number for sorting
-        results+=("9999|${names[$i]}|${servers[$i]}|${status}")
-    fi
-done
+# Test secondary DNS servers
+test_dns_servers secondary_servers secondary_names "Secondary" secondary_results
+
+# Display results in separate tables
+show_results_table primary_results "PRIMARY DNS SERVERS RESULTS"
+show_results_table secondary_results "SECONDARY DNS SERVERS RESULTS"
 
 echo
-echo "Results sorted by speed (fastest to slowest):"
-echo
-
-# Sort results by response time (first field)
-IFS=$'\n' sorted=($(sort -t'|' -n <<<"${results[*]}"))
-
-# Print table header
-printf "%-4s %-12s %-15s %-10s %-10s\n" "Rank" "DNS Provider" "Server" "Status" "Time (ms)"
-printf "%-4s %-12s %-15s %-10s %-10s\n" "----" "------------" "---------------" "----------" "----------"
-
-# Print sorted results with ranking
-rank=1
-for result in "${sorted[@]}"; do
-    IFS='|' read -r time name server status <<< "$result"
-    
-    # Format time display
-    if [ "$time" = "9999" ]; then
-        time_display="N/A"
-    else
-        time_display="${time}"
-    fi
-    
-    printf "%-4s %-12s %-15s %-10s %-10s\n" "$rank" "$name" "$server" "$status" "$time_display"
-    ((rank++))
-done
-
+echo "Testing completed!"
 ```
 
