@@ -25,7 +25,8 @@ $primaryServers = @(
     "77.88.8.8",         # Yandex
     "40.120.32.158",     # KahfGuard
     "193.110.81.0",      # Dns0.eu
-    "119.29.29.29"       # Tencent
+    "119.29.29.29",      # Tencent
+    "76.76.2.2"          # Control D
 )
 
 $primaryNames = @(
@@ -40,7 +41,8 @@ $primaryNames = @(
     "Yandex",
     "KahfGuard",
     "Dns0.eu",
-    "Tencent"
+    "Tencent",
+    "Control D"
 )
 
 # Define secondary DNS servers and their names
@@ -56,7 +58,8 @@ $secondaryServers = @(
     "77.88.8.1",         # Yandex 2
     "40.120.32.159",     # KahfGuard 2
     "185.253.5.0",       # Dns0.eu 2
-    "119.28.28.28"       # Tencent 2
+    "119.28.28.28",      # Tencent 2
+    "76.76.10.2"         # Control D 2
 )
 
 $secondaryNames = @(
@@ -71,10 +74,9 @@ $secondaryNames = @(
     "Yandex 2",
     "KahfGuard 2",
     "Dns0.eu 2",
-    "Tencent 2"
+    "Tencent 2",
+    "Control D 2"
 )
-
-# Function to test DNS servers
 function Test-DNSServers {
     param(
         [array]$servers,
@@ -201,15 +203,20 @@ sudo apt install bind9-dnsutils
 
 then run
 ```bash
+curl -fsSL https://raw.githubusercontent.com/2u841r/dns-compare/main/dns/dns-test.sh | bash
+```
+
+or paste this script manually:
+```bash
 #!/bin/bash
 
 # Primary DNS servers
-primary_servers=("8.8.8.8" "1.1.1.1" "208.67.222.222" "9.9.9.9" "45.90.28.0" "94.140.14.14" "185.222.222.222" "194.242.2.2" "77.88.8.8" "40.120.32.158" "193.110.81.0" "119.29.29.29")
-primary_names=("Google" "Cloudflare" "OpenDNS" "Quad9" "NextDNS" "AdGuard" "DNS SB" "Mullvad" "Yandex" "KahfGuard" "Dns0.eu" "Tencent")
+primary_servers=("8.8.8.8" "1.1.1.1" "208.67.222.222" "9.9.9.9" "45.90.28.0" "94.140.14.14" "185.222.222.222" "194.242.2.2" "77.88.8.8" "40.120.32.158" "193.110.81.0" "119.29.29.29" "76.76.2.2")
+primary_names=("Google" "Cloudflare" "OpenDNS" "Quad9" "NextDNS" "AdGuard" "DNS SB" "Mullvad" "Yandex" "KahfGuard" "Dns0.eu" "Tencent" "Control D")
 
 # Secondary DNS servers
-secondary_servers=("8.8.4.4" "1.0.0.1" "208.67.220.220" "149.112.112.112" "45.90.30.0" "94.140.15.15" "45.11.45.11" "194.242.2.4" "77.88.8.1" "40.120.32.159" "185.253.5.0" "119.28.28.28")
-secondary_names=("Google 2" "Cloudflare 2" "OpenDNS 2" "Quad9 2" "NextDNS 2" "AdGuard 2" "DNS SB 2" "Mullvad 2" "Yandex 2" "KahfGuard 2" "Dns0.eu 2" "Tencent 2")
+secondary_servers=("8.8.4.4" "1.0.0.1" "208.67.220.220" "149.112.112.112" "45.90.30.0" "94.140.15.15" "45.11.45.11" "194.242.2.4" "77.88.8.1" "40.120.32.159" "185.253.5.0" "119.28.28.28" "76.76.10.2")
+secondary_names=("Google 2" "Cloudflare 2" "OpenDNS 2" "Quad9 2" "NextDNS 2" "AdGuard 2" "DNS SB 2" "Mullvad 2" "Yandex 2" "KahfGuard 2" "Dns0.eu 2" "Tencent 2" "Control D 2")
 
 # Function to test DNS servers
 test_dns_servers() {
