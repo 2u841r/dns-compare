@@ -8,8 +8,12 @@ Table of Contents
 ignore anti-virus warning- its safe. and click on "Run Anyway"
 ![how to use](./how-to.gif)
 
-or 
-Paste this code in Powershell
+or run in PowerShell:
+```powershell
+irm https://raw.githubusercontent.com/2u841r/dns-compare/main/dns/DNSSpeedTest.ps1 | iex
+```
+
+or paste this code in Powershell
 ```bash
 # DNS Speed Test Script
 # Define primary DNS servers and their names
